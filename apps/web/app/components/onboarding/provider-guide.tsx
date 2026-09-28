@@ -60,8 +60,17 @@ type GuideState = {
 
 const CONNECT_FORM = 'connect-provider';
 
-function initialState(providerId: string, current = 0): GuideState {
-  return { providerId, current, values: {}, files: {}, touched: {}, derived: {} };
+const PREFILLED_DETAILS = ['teamId', 'bundleId'];
+
+function prefilledValues(existing: Credential | null): FieldValues {
+  const details = (existing?.details ?? {}) as Record<string, unknown>;
+  return Object.fromEntries(
+    PREFILLED_DETAILS.flatMap((name) => (typeof details[name] === 'string' ? [[name, details[name]]] : []))
+  );
+}
+
+function initialState(providerId: string, current = 0, values: FieldValues = {}): GuideState {
+  return { providerId, current, values, files: {}, touched: {}, derived: {} };
 }
 
 function fieldValid(field: GuideField, values: FieldValues, files: FileValues): boolean {
@@ -114,8 +123,11 @@ export function useProviderGuide({
 } {
   const fetcher = useFetcher<ConnectActionData>({ key: `connect:${providerId}` });
   const navigate = useNavigate();
-  const [state, setState] = useState<GuideState>(() => initialState(providerId, initialStep));
-  if (state.providerId !== providerId) setState(initialState(providerId, initialStep));
+  const [state, setState] = useState<GuideState>(() =>
+    initialState(providerId, initialStep, prefilledValues(existing))
+  );
+  if (state.providerId !== providerId)
+    setState(initialState(providerId, initialStep, prefilledValues(existing)));
   const { current, values, files, touched, derived } = state;
   const patch = (changes: Partial<GuideState>) => setState((previous) => ({ ...previous, ...changes }));
 
