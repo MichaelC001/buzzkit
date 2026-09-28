@@ -132,6 +132,22 @@ Before writing a loop or utility, check whether it exists: `timedFetch` (`libs/h
 - `apps/web` and `apps/marketing` (React/Astro): components PascalCase, hooks kebab-case `use-<name>.tsx`, `lib/` is `.ts` only, and a directory never mixes `.ts` and `.tsx` — fold a component tree's types/constants/helpers into the `.tsx` that owns them, and name files on import instead of adding a barrel to a components directory.
 - No single-use constants: a value gets a name only when reused or a tunable policy number.
 
+## Docs — every change, every surface
+
+A feature is not done until each surface that describes it says so. Walk this list for every customer-visible change:
+
+| Surface | What goes there |
+|---|---|
+| `docs/api/<resource>.md` + `docs/README.md` index | every route, its scope, body, response, errors |
+| `docs/data-model.md` | every table and column |
+| `apps/docs/**.mdx` + `apps/docs/docs.json` | the customer guide page and its navigation entry |
+| `apps/marketing/public/.well-known/agent-skills/buzzkit/` | `SKILL.md` and the matching `references/*.md` |
+| `apps/docs/openapi.json`, `apps/marketing/public/openapi.json` | `bun run --cwd apps/api openapi:emit` |
+| `.changeset/*.md` | any change to `packages/buzzkit` |
+| BuzzKit-iOS `docs/`, `README.md`, `CHANGELOG.md` | any iOS SDK change |
+
+`scripts/lint-conventions.ts` fails `bun lint` when a route in `modules/v1/index.ts` has no entry in `docs/api/*.md` (parameter names are ignored). Everything else on the list has no check, which is exactly why the list exists.
+
 ## Enforcement — what runs where
 
-`bun lint` = Biome (hardened rule set; type-aware promise rules; custom Grit plugins in `.biome/plugins/` banning awaited calls in ternaries and interpolated span names) + `scripts/lint-conventions.ts` (the comments ban and the verb catalog — things Grit cannot see). `bunx knip` catches cross-module dead exports/files/deps. Hooks: pre-commit runs Biome on staged files + conventions + sherif; commit-msg enforces conventional commits; pre-push runs check-types + unit tests. CI mirrors all of it plus the unit suites. Two known enforcement gaps to keep honest about: Grit snippet patterns miss calls with explicit type arguments (`trace<T>(…)`) — the conventions still apply there; and `biome migrate` on version bumps must be diff-reviewed (it has rewritten `preset` to `"none"` before, silently disabling every rule).
+`bun lint` = Biome (hardened rule set; type-aware promise rules; custom Grit plugins in `.biome/plugins/` banning awaited calls in ternaries and interpolated span names) + `scripts/lint-conventions.ts` (the comments ban, the verb catalog and route docs coverage — things Grit cannot see). `bunx knip` catches cross-module dead exports/files/deps. Hooks: pre-commit runs Biome on staged files + conventions + sherif; commit-msg enforces conventional commits; pre-push runs check-types + unit tests. CI mirrors all of it plus the unit suites. Two known enforcement gaps to keep honest about: Grit snippet patterns miss calls with explicit type arguments (`trace<T>(…)`) — the conventions still apply there; and `biome migrate` on version bumps must be diff-reviewed (it has rewritten `preset` to `"none"` before, silently disabling every rule).

@@ -91,4 +91,6 @@ Schema files go in `packages/database/src/schema/`, exported from `src/schema/in
 
 ## Documentation
 
-Product and architecture documentation lives in `docs/` — start at `docs/README.md`. `docs/overview.md` is the product vision and the source of truth for scope. Keep docs updated in the same change that alters behavior.
+Product and architecture documentation lives in `docs/` — start at `docs/README.md`. `docs/overview.md` is the product vision and the source of truth for scope.
+
+**Docs ship in the same change as the behavior, on every surface, or the change is not done.** A change that adds or alters something a customer can observe updates all of: `docs/api/*.md` (and the index in `docs/README.md`), `docs/data-model.md` for schema, the docs site (`apps/docs/**.mdx` plus `apps/docs/docs.json` navigation), the agent skill (`apps/marketing/public/.well-known/agent-skills/buzzkit/SKILL.md` and `references/*.md`), the OpenAPI files (`bun run --cwd apps/api openapi:emit`), a changeset for `packages/buzzkit`, and the BuzzKit-iOS repo's `docs/`, `README.md` and `CHANGELOG.md` when the SDK changed. `bun lint` fails when a route in `modules/v1/index.ts` is missing from `docs/api/*.md`; the rest is on you, so walk the list before calling a change finished.

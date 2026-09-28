@@ -132,6 +132,38 @@ function collectVerbViolations(file: string, program: BabelNode, violations: Vio
   });
 }
 
+const ROUTE_TABLE = 'apps/api/src/modules/v1/index.ts';
+
+const API_DOCS = 'docs/api';
+
+const ROUTE_COMMENT_PATTERN = /\/\* (\/v1\/[^\s*]+) \*\//g;
+
+const DOCUMENTED_PATH_PATTERN = /\/v1\/[A-Za-z0-9:/_.-]+/g;
+
+function normalizeRoute(path: string): string {
+  return path.replace(/:[A-Za-z]+/g, ':param').replace(/\/$/, '');
+}
+
+function collectRouteDocViolations(violations: Violation[]): void {
+  const table = readSource(ROUTE_TABLE);
+  const documented = new Set(
+    readdirSync(API_DOCS)
+      .filter((file) => file.endsWith('.md'))
+      .flatMap((file) => [...readSource(join(API_DOCS, file)).matchAll(DOCUMENTED_PATH_PATTERN)])
+      .map((match) => normalizeRoute(match[0]))
+  );
+
+  for (const match of table.matchAll(ROUTE_COMMENT_PATTERN)) {
+    const route = match[1] as string;
+    if (documented.has(normalizeRoute(route))) continue;
+    violations.push({
+      file: ROUTE_TABLE,
+      line: table.slice(0, match.index).split('\n').length,
+      message: `${route} is not documented in ${API_DOCS}/*.md; document it in the same change`,
+    });
+  }
+}
+
 function run(): void {
   const violations: Violation[] = [];
 
@@ -165,6 +197,8 @@ function run(): void {
       }
     }
   }
+
+  collectRouteDocViolations(violations);
 
   if (violations.length === 0) return;
 

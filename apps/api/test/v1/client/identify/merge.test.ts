@@ -394,6 +394,35 @@ describe('POST /v1/client/identify — anonymous merge', () => {
     expect(await activitiesOf(workspace.slug, user)).toEqual(['match_1']);
   });
 
+  it('carries a widget registered while anonymous onto the identified subscriber', async () => {
+    const { clientBearer, workspace } = await setupClient();
+    const anon = anonymousId();
+    const user = `user_${uniq()}`;
+    const registered = await api('/v1/client/widgets', {
+      method: 'POST',
+      headers: clientBearer,
+      body: JSON.stringify({ externalId: anon, token: '9f'.repeat(32) }),
+    });
+    expect(registered.status).toBe(201);
+
+    const identified = await identify(clientBearer, { externalId: user, anonymousId: anon });
+    expect(identified.status).toBe(200);
+
+    const tenantId = await tenantIdFor(workspace.slug);
+    const rows = await db
+      .select({ token: tables.widget.token })
+      .from(tables.widget)
+      .innerJoin(tables.subscriber, eq(tables.subscriber.id, tables.widget.subscriberId))
+      .where(
+        and(
+          eq(tables.subscriber.tenantId, tenantId),
+          eq(tables.subscriber.externalId, user),
+          isNull(tables.widget.deletedAt)
+        )
+      );
+    expect(rows.map((row) => row.token)).toEqual(['9f'.repeat(32)]);
+  });
+
   it('keeps only the identified subscriber activity when both hold the same one', async () => {
     const { clientBearer, workspace } = await setupClient();
     const anon = anonymousId();
