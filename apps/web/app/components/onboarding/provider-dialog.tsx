@@ -31,6 +31,7 @@ export function ProviderDialog({
   open,
   onOpenChange,
   action,
+  environment,
 }: {
   workspaceSlug: string;
   channel: ChannelEntry;
@@ -39,6 +40,7 @@ export function ProviderDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   action: string;
+  environment?: Credential['environment'];
 }) {
   const existing = credentials.find((credential) => credential.provider === provider.id) ?? null;
   const guide = useProviderGuide({
@@ -47,9 +49,10 @@ export function ProviderDialog({
     existing,
     back: () => onOpenChange(false),
     initialStep: 0,
-    storageKey: `buzzkit:connect:${workspaceSlug}:${provider.id}`,
+    storageKey: `buzzkit:connect:${workspaceSlug}:${provider.id}${environment ? `:${environment}` : ''}`,
     action,
     trackStep: false,
+    environment,
   });
 
   const connected = guide.connected

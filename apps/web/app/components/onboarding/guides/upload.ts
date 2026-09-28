@@ -26,7 +26,18 @@ export function buildCredentialUpload(provider: ProviderId, form: FormData): Upl
       if (!bundleId) {
         return { ok: false, error: 'Enter the bundle ID of your app.', param: 'bundleId' };
       }
-      return { ok: true, upload: { provider: 'apns', p8, keyId, teamId, bundleId } };
+      const environment = text(form, 'environment');
+      return {
+        ok: true,
+        upload: {
+          provider: 'apns',
+          p8,
+          keyId,
+          teamId,
+          bundleId,
+          ...(environment === 'production' || environment === 'sandbox' ? { environment } : {}),
+        },
+      };
     }
     case 'fcm': {
       const serviceAccount = text(form, 'serviceAccount');

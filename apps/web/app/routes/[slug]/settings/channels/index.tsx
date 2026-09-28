@@ -115,6 +115,12 @@ function environmentsOf(credentials: Credential[]): Array<Credential['environmen
   );
 }
 
+function missingEnvironmentOf(credentials: Credential[]): Credential['environment'] | null {
+  const connected = environmentsOf(credentials);
+  if (connected.length !== 1) return null;
+  return ENVIRONMENTS.find((environment) => !connected.includes(environment)) ?? null;
+}
+
 function ProviderRow({
   channel,
   provider,
@@ -127,7 +133,11 @@ function ProviderRow({
   provider: ProviderEntry;
   credentials: Credential[];
   canManage: boolean;
-  onConnect: (channel: ChannelEntry, provider: AvailableProvider) => void;
+  onConnect: (
+    channel: ChannelEntry,
+    provider: AvailableProvider,
+    environment?: Credential['environment']
+  ) => void;
   onRemove: (provider: ProviderEntry, credentials: Credential[]) => void;
 }) {
   const { submit, pending } = useActionFetcher(() =>
@@ -142,6 +152,7 @@ function ProviderRow({
     .at(-1);
   const error = credentials.find((credential) => credential.lastError)?.lastError;
   const ids = credentials.map((credential) => credential.id).join(',');
+  const missing = missingEnvironmentOf(credentials);
 
   return (
     <SettingsRow
@@ -183,6 +194,13 @@ function ProviderRow({
                   <DropdownMenuItem onClick={() => submit('validate', { provider: provider.id, ids })}>
                     Validate again
                   </DropdownMenuItem>
+                  {provider.available && missing && (
+                    <DropdownMenuItem
+                      onClick={() => onConnect(channel, provider as AvailableProvider, missing)}
+                    >
+                      Upload {missing} key
+                    </DropdownMenuItem>
+                  )}
                   {provider.available && (
                     <DropdownMenuItem onClick={() => onConnect(channel, provider as AvailableProvider)}>
                       Replace
@@ -479,7 +497,11 @@ function ChannelsContent({
     null
   );
   const [removeOpen, setRemoveOpen] = useState(false);
-  const [target, setTarget] = useState<{ channel: ChannelEntry; provider: AvailableProvider } | null>(null);
+  const [target, setTarget] = useState<{
+    channel: ChannelEntry;
+    provider: AvailableProvider;
+    environment?: Credential['environment'];
+  } | null>(null);
   const [connectOpen, setConnectOpen] = useState(false);
 
   return (
@@ -502,8 +524,8 @@ function ChannelsContent({
                   provider={provider}
                   credentials={credentials.filter((credential) => credential.provider === provider.id)}
                   canManage={canManage}
-                  onConnect={(targetChannel, targetProvider) => {
-                    setTarget({ channel: targetChannel, provider: targetProvider });
+                  onConnect={(targetChannel, targetProvider, environment) => {
+                    setTarget({ channel: targetChannel, provider: targetProvider, environment });
                     setConnectOpen(true);
                   }}
                   onRemove={(targetProvider, targetCredentials) => {
@@ -526,6 +548,7 @@ function ChannelsContent({
           open={connectOpen}
           onOpenChange={setConnectOpen}
           action={location.pathname}
+          environment={target.environment}
         />
       )}
 

@@ -94,6 +94,7 @@ export function useProviderGuide({
   storageKey,
   action,
   trackStep = true,
+  environment,
 }: {
   guide: GuideDefinition | null;
   providerId: string;
@@ -103,6 +104,7 @@ export function useProviderGuide({
   storageKey: string;
   action?: string;
   trackStep?: boolean;
+  environment?: Credential['environment'];
 }): {
   current: number;
   total: number;
@@ -217,6 +219,7 @@ export function useProviderGuide({
       <fetcher.Form method='post' id={CONNECT_FORM} action={action}>
         <input type='hidden' name='intent' value='connect' />
         <input type='hidden' name='provider' value={providerId} />
+        {environment && <input type='hidden' name='environment' value={environment} />}
         {guide.steps.flatMap((entry) =>
           (entry.fields ?? []).map((field) => (
             <input
