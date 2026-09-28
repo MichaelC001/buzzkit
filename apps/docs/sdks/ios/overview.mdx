@@ -78,7 +78,7 @@ struct GymApp: App {
 
 ## Configuration options
 
-`BuzzKit.Configuration` takes one required argument and seven optional ones.
+`BuzzKit.Configuration` takes one required argument and eight optional ones.
 
 | Option | Type | Default | What it does |
 | --- | --- | --- | --- |
@@ -90,6 +90,7 @@ struct GymApp: App {
 | `appGroup` | `String?` | `nil` | The app group shared with the notification service extension. |
 | `pushEnvironment` | `BuzzKit.PushEnvironment?` | `nil` | Forces `.sandbox` or `.production` instead of detecting the environment from the provisioning profile. |
 | `automaticPushHandling` | `Bool` | `true` | Receives the app delegate's three push callbacks for you. Turn it off to forward them yourself. |
+| `automaticClearing` | `NotificationClearing` | `.default` | What the SDK clears on its own, BuzzKit's notifications only. The default, `.tappedThread`, removes the rest of a tapped notification's thread and sets the badge to what is left; opening the app clears nothing unless you add `.badge`, `.unthreaded` or `.threads`. `.all` is every option, `[]` is none |
 
 <Note>
   Setting `appGroup` also writes the API key and API URL into the shared container so the notification service extension can send delivered receipts on its own. Give the app and the extension the same group in Xcode's Signing & Capabilities. See [Push notifications](/sdks/ios/push).

@@ -64,6 +64,7 @@ BuzzKit.configure(with: BuzzKit.Configuration(
 | `appGroup` | `String?` | `nil` | The app group shared with the notification service extension. Also writes the key and API URL into the shared container so the extension needs no configuration. |
 | `pushEnvironment` | `BuzzKit.PushEnvironment?` | `nil` | Forces `.sandbox` or `.production` instead of reading the provisioning profile. |
 | `automaticPushHandling` | `Bool` | `true` | Receives the app delegate's three push callbacks for you. |
+| `automaticClearing` | `NotificationClearing` | `.default` | What the SDK clears on its own, BuzzKit's notifications only. The default, `.tappedThread`, removes the rest of a tapped notification's thread and sets the badge to what is left; opening the app clears nothing unless you add `.badge`, `.unthreaded` or `.threads`. `.all` is every option, `[]` is none |
 
 The client key (`bk_pk_`) is the only key meant to ship in a binary: it reaches `/v1/client/*` and nothing else. It cannot send, read other subscribers or reach other tenants.
 

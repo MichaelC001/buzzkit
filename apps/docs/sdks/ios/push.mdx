@@ -77,9 +77,40 @@ BuzzKit.delegate = coordinator
 
 Return `nil` to fall back to the configured default. The delegate also reports opens through `buzzKit(_:didOpen:actionIdentifier:)` and silent pushes through `buzzKit(_:didReceive:)`.
 
-## Badge
+## Clearing notifications and the badge
 
-`registerForPush` asks for `.alert`, `.badge` and `.sound` together, and the default foreground presentation includes `.badge`. The badge number itself comes from the `badge` field on the message you send, applied by iOS. The SDK never sets or clears the badge on its own, so managing a running count is yours to do.
+Tapping a notification reads its conversation. By default, when the user taps a notification sent with a `threadId`, the rest of that thread leaves Notification Center and the badge becomes the number of BuzzKit notifications still showing. Other threads and notifications without a thread stay (iOS removes the tapped one itself), and opening the app on its own clears nothing, the way Messages behaves. iOS never lets an app touch another app's notifications, and the SDK only removes notifications it delivered, so your own local notifications stay as well.
+
+`automaticClearing` in the configuration is an option set:
+
+| Option | When | What it clears |
+| --- | --- | --- |
+| `.tappedThread` | A threaded notification is tapped | The rest of that thread, then the badge counts what is left |
+| `.badge` | App opens | The icon badge |
+| `.unthreaded` | App opens | Notifications sent without a `threadId` |
+| `.threads` | App opens | Every thread's notifications |
+
+`.default` is `[.tappedThread]`. `.all` is every option, so opening the app clears everything. `[]` turns automatic clearing off. Nothing is cleared when iOS launches the app in the background; the app-open options run once the user opens it.
+
+```swift
+BuzzKit.configure(with: BuzzKit.Configuration(
+    apiKey: "bk_pk_…",
+    automaticClearing: .all
+))
+```
+
+The manual forms cover the cases where opening the app is not the same as reading everything:
+
+```swift
+await BuzzKit.clearNotifications()
+await BuzzKit.clearNotifications(inThread: "room:\(room.id)")
+await BuzzKit.clearNotifications { $0.payload.data["orderId"] == .string(order.id) }
+await BuzzKit.clearBadge()
+```
+
+`clearNotifications()` removes every BuzzKit notification and resets the badge. The thread form removes the ones sent with that `threadId`, the natural call when the user opens a conversation, and the predicate form reads each notification's parsed payload. Both scoped forms leave the badge alone, since only your app knows what the remaining count should be. `BuzzKit.activeNotifications()` lists what is still showing, newest first, with the title, body, thread and parsed `PushPayload` of each.
+
+The badge number itself comes from the `badge` field on the message you send, applied by iOS. There is no server-side counter, so a running unread count is a number you compute and send. `registerForPush` asks for `.alert`, `.badge` and `.sound` together, and the default foreground presentation includes `.badge`.
 
 ## Manual delegate forwarding
 
