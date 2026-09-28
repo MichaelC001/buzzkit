@@ -115,6 +115,15 @@ async function moveLiveActivities(tx: Tx, source: Subscriber, target: Subscriber
   return { moved: movable.length, superseded: superseded.length };
 }
 
+async function moveWidgets(tx: Tx, source: Subscriber, target: Subscriber, now: Date) {
+  const moved = await tx
+    .update(tables.widget)
+    .set({ subscriberId: target.id, updatedAt: now })
+    .where(and(eq(tables.widget.subscriberId, source.id), isNull(tables.widget.deletedAt)))
+    .returning({ id: tables.widget.id });
+  return moved.length;
+}
+
 async function moveHistory(tenantId: number, source: Subscriber, target: Subscriber, span: Span) {
   const origin = await subscriberActor(tenantId, source.id);
   const history = await origin.exportHistory();
@@ -179,6 +188,7 @@ async function absorbSubscriber(
 
     const preferences = await movePreferences(tx, source, target);
     const activities = await moveLiveActivities(tx, source, target, now);
+    const widgets = await moveWidgets(tx, source, target, now);
 
     const deliveries = await countRows(tx, tables.delivery, eq(tables.delivery.subscriberId, source.id));
     await tx
@@ -207,6 +217,7 @@ async function absorbSubscriber(
     span.set('merge.preferences', preferences);
     span.set('merge.liveActivities', activities.moved);
     span.set('merge.liveActivities.superseded', activities.superseded);
+    span.set('merge.widgets', widgets);
     span.set('merge.deliveries', deliveries);
 
     return merged!;

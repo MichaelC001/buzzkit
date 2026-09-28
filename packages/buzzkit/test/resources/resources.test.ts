@@ -271,6 +271,11 @@ describe('imports, live activities and tenants', () => {
     await expect(
       record((b) => b.liveActivities.send({ to: 'u1', event: 'update', contentState: { score: 1 } }))
     ).resolves.toMatchObject({ method: 'POST', url: `${base}/v1/live-activities/send` });
+    await expect(record((b) => b.widgets.reload({ to: ['u1', 'u2'] }))).resolves.toMatchObject({
+      method: 'POST',
+      url: `${base}/v1/widgets/reload`,
+      body: { to: ['u1', 'u2'] },
+    });
     await expect(recordList((b) => b.tenants.list())).resolves.toMatchObject({ url: `${base}/v1/tenants` });
     await expect(record((b) => b.tenants.create({ name: 'T', slug: 't' }))).resolves.toMatchObject({
       method: 'POST',

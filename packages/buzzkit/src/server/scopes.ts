@@ -30,6 +30,8 @@ import type { TopicCategoriesResource, TopicsResource } from '../resources/topic
 import { topicCategoriesResource, topicsResource } from '../resources/topics';
 import type { WebhooksResource } from '../resources/webhooks';
 import { webhooksResource } from '../resources/webhooks';
+import type { WidgetsResource } from '../resources/widgets';
+import { widgetsResource } from '../resources/widgets';
 import type { WorkflowsResource } from '../resources/workflows';
 import { workflowsResource } from '../resources/workflows';
 import type {
@@ -58,6 +60,7 @@ export class TenantScope {
   readonly sources: SourcesResource;
   readonly imports: ImportsResource;
   readonly liveActivities: LiveActivitiesResource;
+  readonly widgets: WidgetsResource;
   readonly stats: StatsResource;
 
   protected readonly transport: Transport;
@@ -79,6 +82,7 @@ export class TenantScope {
     this.sources = sourcesResource(transport);
     this.imports = importsResource(transport);
     this.liveActivities = liveActivitiesResource(transport);
+    this.widgets = widgetsResource(transport);
     this.stats = statsResource(transport);
   }
 

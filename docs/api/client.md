@@ -28,6 +28,10 @@ Same headers; unregisters the caller's own subscription and returns it with `del
 
 `{ externalId, identityHash?, kind?: "activity" | "start", activityId?, attributesType, token, environment? }` — registers a Live Activity push token (`kind: "activity"`, needs `activityId`) or a push-to-start token (`kind: "start"`). Idempotent per activity; call again on every token update. `DELETE /v1/client/live-activities/:activityId` (with the subscriber headers) marks the activity ended. The server drives updates through `POST /v1/live-activities/send` (`{ to, event: "start" | "update" | "end", activityId? | attributesType?, contentState, attributes?, alert?, staleDate?, dismissalDate? }`), which reports the APNs outcome per token.
 
+## POST /v1/client/widgets
+
+`{ externalId, identityHash?, token, environment? }` — registers the device's WidgetKit push token (hex, 32 to 512 characters; `environment` is `production` by default or `sandbox`). It upserts the subscriber like the other client routes, then registers the token: 201 when created, 200 on a refresh, with `{ id: "wgt_…", environment, createdAt, updatedAt }`. WidgetKit issues one token per device for all of the app's widgets, so this is one registration per device. A token registered again by a different subscriber moves to that subscriber. `DELETE /v1/client/widgets/:id` (with the subscriber headers) soft-deletes the registration and returns it with `deleted: true`; a widget that is not the caller's is a 404. The server reloads widgets through `POST /v1/widgets/reload` ([widgets.md](widgets.md)).
+
 ## GET / PATCH /v1/client/preferences
 
 Headers: `BuzzKit-Subscriber: <externalId>` (+ `BuzzKit-Identity: <hash>` when enforcement is on). GET returns the resolved topic list ([topics.md](topics.md)), each topic carrying its `category` for grouped settings screens; PATCH takes `{ "preferences": { "gym-reminders": false } }`. This pair IS the notification-settings screen.

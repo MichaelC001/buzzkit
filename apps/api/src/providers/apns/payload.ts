@@ -1,4 +1,5 @@
 import type { ProviderSendInput } from '../types';
+import type { ApnsPushType } from './request';
 
 const INTERRUPTION_LEVELS = {
   passive: 'passive',
@@ -11,9 +12,8 @@ export function isSilentPayload(payload: ProviderSendInput['payload']): boolean 
   return payload.silent === true || payload.deliver === 'local';
 }
 
-export function resolvePushType(
-  payload: ProviderSendInput['payload']
-): 'alert' | 'background' | 'liveactivity' {
+export function resolvePushType(payload: ProviderSendInput['payload']): ApnsPushType {
+  if (payload.widgets) return 'widgets';
   if (payload.liveActivity) return 'liveactivity';
   return isSilentPayload(payload) ? 'background' : 'alert';
 }
@@ -69,6 +69,9 @@ export function buildLiveActivityPayload(payload: ProviderSendInput['payload']):
 }
 
 export function buildApnsPayload(payload: ProviderSendInput['payload']): Record<string, unknown> {
+  if (payload.widgets) {
+    return { aps: { 'content-changed': true } };
+  }
   if (payload.liveActivity) {
     return buildLiveActivityPayload(payload);
   }

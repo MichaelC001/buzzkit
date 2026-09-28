@@ -204,3 +204,10 @@ describe('live activities', () => {
     expect(aps.timestamp).toBe(1234);
   });
 });
+
+describe('widgets', () => {
+  it('builds the content-changed shape and the widgets push type', () => {
+    expect(buildApnsPayload({ widgets: true })).toEqual({ aps: { 'content-changed': true } });
+    expect(resolvePushType({ widgets: true })).toBe('widgets');
+  });
+});

@@ -24,6 +24,7 @@ const TENANT_RESOURCES = [
   'sources',
   'imports',
   'liveActivities',
+  'widgets',
   'stats',
 ] as const;
 

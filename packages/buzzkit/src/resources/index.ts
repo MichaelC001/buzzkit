@@ -15,5 +15,6 @@ export type * from './subscriptions';
 export type * from './tenants';
 export type * from './topics';
 export type * from './webhooks';
+export type * from './widgets';
 export type * from './workflows';
 export type * from './workspaces';

@@ -1,8 +1,8 @@
 # iOS SDK
 
-The Swift package at `https://github.com/buzzkit-dev/buzzkit-ios`. It identifies the user, registers the device for push, tracks events durably on disk, renders the notification settings screen, routes deep links and named actions, keeps Live Activity tokens registered, and schedules workflow-driven local notifications. Messages, segments, workflows and topics stay in the dashboard and the API; the SDK keeps the device, the user and their preferences in sync with them.
+The Swift package at `https://github.com/buzzkit-dev/buzzkit-ios`. It identifies the user, registers the device for push, tracks events durably on disk, renders the notification settings screen, routes deep links and named actions, keeps Live Activity and widget push tokens registered, and schedules workflow-driven local notifications. Messages, segments, workflows and topics stay in the dashboard and the API; the SDK keeps the device, the user and their preferences in sync with them.
 
-Docs: `https://docs.buzzkit.dev/sdks/ios/overview` and the pages `push`, `identity`, `events`, `deep-links`, `preferences`, `live-activities`, `local-notifications` (append `.md` for markdown).
+Docs: `https://docs.buzzkit.dev/sdks/ios/overview` and the pages `push`, `identity`, `events`, `deep-links`, `preferences`, `live-activities`, `widgets`, `local-notifications` (append `.md` for markdown).
 
 ```swift
 import BuzzKit
@@ -23,7 +23,7 @@ Xcode → File → Add Package Dependencies, or in `Package.swift`:
 
 | Product | Add to | What it does |
 | --- | --- | --- |
-| `BuzzKit` | The app target | Identity, events, push, preferences, deep links, Live Activities |
+| `BuzzKit` | The app target | Identity, events, push, preferences, deep links, Live Activities, widget push tokens |
 | `BuzzKitUI` | The app target | `BuzzKitPreferencesView`, the drop-in notification settings screen |
 | `BuzzKitNotificationServiceExtension` | A notification service extension target | Rich media attachments, action buttons and delivered receipts |
 
@@ -40,6 +40,7 @@ A package cannot add these; set them on the app target once.
 | An app group on the app and the extension | Delivered receipts that survive the extension |
 | A Notification Service Extension target | Rich media, action buttons and delivered receipts |
 | `NSSupportsLiveActivities` in Info.plist | Live Activities (`NSSupportsLiveActivitiesFrequentUpdates` for many updates an hour) |
+| Push Notifications capability and the app group on the widget extension | Widget reloads |
 
 ## Configure
 
@@ -198,6 +199,30 @@ await BuzzKit.activities.end(activity)
 - `start(_:state:staleDate:relevanceScore:)` requests through ActivityKit with `pushType: .token` and monitors it; it is not `async` and throws what `Activity.request` throws. End through BuzzKit (`end(activity)` or `end(id:)`) so the server row is cleared.
 - The backend drives them with `POST /v1/live-activities/send` (`to`, `event: start | update | end`, `activityId` or `attributesType`, `contentState` (required), `attributes` for `start`, `alert { title, body, sound }` (required for `start`), `staleDate`, `dismissalDate`, `priority`, `timestamp`); the reply carries one result per token. Renaming the attributes struct changes the identifier, so ship the new name from the backend with the rename.
 - Low-level surface when needed: `register(id:token:attributesType:)`, `registerPushToStartToken(_:attributesType:)`, `monitor(_:)`, `end(id:)`.
+
+## Widgets
+
+WidgetKit push reloads (iOS 26+): the backend tells the device a widget's content changed and iOS reloads the timeline. The push carries no data, and iOS budgets it like timeline reloads, so it is opportunistic. The app must set `appGroup` in its `Configuration`, the widget extension must share that app group, and the extension target needs the Push Notifications capability (`aps-environment`). No new credential: it uses the tenant's APNs credential, whose key must be allowed to send to the app's topics (a team-scoped key is).
+
+```swift
+import BuzzKit
+import WidgetKit
+
+struct StatsPushHandler: WidgetPushHandler {
+    func pushTokenDidChange(_ pushInfo: WidgetPushInfo, widgets: [WidgetInfo]) {
+        Task { await BuzzKit.widgets(appGroup: "group.com.example.app").pushTokenDidChange(pushInfo, widgets: widgets) }
+    }
+}
+
+// on the widget configuration
+.pushHandler(StatsPushHandler.self)
+```
+
+- `BuzzKit.widgets(appGroup:)` is for the widget extension: it reads the API key and the current subscriber from the app group the app configured. `BuzzKit.widgets` is for the app.
+- `pushTokenDidChange(_:widgets:)` registers the token while any widget is installed and unregisters when the last one is removed. WidgetKit issues one token per device for all of the app's widgets, so there is one registration per device.
+- `try await BuzzKit.widgets.synchronize()` from the app re-registers `WidgetCenter.shared.currentPushInfo`; call it after `identify` so the token moves to the identified subscriber.
+- Low-level surface when needed: `register(token:)`, `unregister()`.
+- The backend reloads with `POST /v1/widgets/reload` (`to`: one external id or 1 to 100; scope `messages:send`), or `buzzkit.widgets.reload({ to })`. It is synchronous and creates no message; the reply is `{ results: [{ id: "wgt_…", ok, code?, reason? }] }`, one per registered widget token. Unknown subscribers are skipped, `no_credential` means the token's environment has no APNs credential, and an `invalid_endpoint` result removes that registration.
 
 ## Local notifications
 

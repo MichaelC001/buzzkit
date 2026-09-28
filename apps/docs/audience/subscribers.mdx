@@ -103,7 +103,7 @@ Apps track people before they sign up. The [iOS SDK](/sdks/ios/identity) mints a
 }
 ```
 
-Push subscriptions, topic preferences, attributes, live activities, delivery history and the event history all come across, so the person keeps their devices and their timeline. When the id you identify with is new the subscriber is simply renamed and keeps everything untouched, the same row under a new name, and anything already running for them keeps running. When the id already exists the anonymous subscriber is merged into it and retired. On a preference conflict the newer choice wins, and where both identities hold the same live activity the identified one is kept.
+Push subscriptions, topic preferences, attributes, live activities, widget registrations, delivery history and the event history all come across, so the person keeps their devices and their timeline. When the id you identify with is new the subscriber is simply renamed and keeps everything untouched, the same row under a new name, and anything already running for them keeps running. When the id already exists the anonymous subscriber is merged into it and retired. On a preference conflict the newer choice wins, and where both identities hold the same live activity the identified one is kept.
 
 A workflow run that was still in flight on a subscriber being retired is canceled with the reason `subscriber_merged`, because the row it was started for no longer exists. A run started before a rename is untouched.
 
@@ -128,7 +128,7 @@ A subscriber can be known by more than one id. Every past id is kept as an alias
 The call returns the subscriber's full alias list and behaves in one of two ways:
 
 - **The id is unused.** It is recorded as an alias, and `GET /v1/subscribers/onesignal:8f2c1a` now answers with `user_42`.
-- **The id already belongs to another subscriber.** That subscriber is merged into this one: its subscriptions, preferences, attributes, live activities, deliveries and events move across, its own aliases follow, its in-flight runs are canceled, and it is retired. An id that is only an alias of another subscriber counts as belonging to it, so aliasing one merges that whole subscriber away. This is how you fold imported installs or a legacy id scheme into your real user ids.
+- **The id already belongs to another subscriber.** That subscriber is merged into this one: its subscriptions, preferences, attributes, live activities, widget registrations, deliveries and events move across, its own aliases follow, its in-flight runs are canceled, and it is retired. An id that is only an alias of another subscriber counts as belonging to it, so aliasing one merges that whole subscriber away. This is how you fold imported installs or a legacy id scheme into your real user ids.
 
 `GET /v1/subscribers/:externalId/aliases` lists them, each with the `source` that created it: `system` for one BuzzKit recorded when a device identified, `manual` for one you added yourself.
 

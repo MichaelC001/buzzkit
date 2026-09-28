@@ -72,6 +72,7 @@ export type MessagePayload = {
   targetContentId?: string;
   actions?: MessageAction[];
   liveActivity?: LiveActivityPayload;
+  widgets?: true;
   bk?: Record<string, unknown>;
   apns?: { payload?: Record<string, unknown> };
   fcm?: { android?: Record<string, unknown>; payload?: Record<string, unknown> };

@@ -85,6 +85,7 @@ Method names are `list`, `retrieve`, `create`, `update`, `remove` plus domain ve
 - `buzzkit.segments`: `list()`, `create(params)`, `preview(expression)`, `retrieve(slug)`, `update(slug, params)`, `remove(slug)`, `members(slug, params)`. See `references/segments.md`.
 - `buzzkit.workflows`: `list()`, `create(params)`, `retrieve(slug)`, `update(slug, params)`, `remove(slug)`, `publish(slug)`, `pause(slug)`, `runs(slug, params)`, `schedule(slug)`, `test(slug, params)`. `buzzkit.runs`: `list(params)`, `retrieve(runId)`. See `references/workflows.md`.
 - `buzzkit.liveActivities`: `send(params)`. See `references/messages.md`.
+- `buzzkit.widgets`: `reload({ to })`, returning `{ results: BuzzKit.WidgetReloadResult[] }` (params `BuzzKit.ReloadWidgetsParams`). See `references/messages.md`.
 - `buzzkit.credentials`: `list()`, `create(params)`, `retrieve(id)`, `remove(id)`, `validate(id)` (usually managed in the dashboard). `buzzkit.secrets`: `list()`, `retrieve(name)`, `upsert(name, value)`, `remove(name)` (workflow `fetch` secrets). `buzzkit.imports`: `create(rows)` (bulk migration). `buzzkit.stats`: `retrieve(params)`.
 - `buzzkit.tenants`: `list(params)`, `create(params)`, `retrieve(slug)`, `update(slug, params)`, `remove(slug)`. See `references/tenants.md`.
 - `buzzkit.workspace(slug)`: `webhooks` (`references/sources-webhooks.md`), `members`, `audit`, `retrieve()`, `update(params)`. `buzzkit.sources`: `list()`, `create(params)`, `retrieve(id)`, `update(id, params)`, `remove(id)`, `preview(id, params)`, `deliveries(id, params)`.

@@ -87,6 +87,7 @@
                   "sdks/ios/events",
                   "sdks/ios/deep-links",
                   "sdks/ios/live-activities",
+                  "sdks/ios/widgets",
                   "sdks/ios/local-notifications",
                   "sdks/ios/preferences"
                 ]

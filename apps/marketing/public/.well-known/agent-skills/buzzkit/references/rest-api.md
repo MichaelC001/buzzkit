@@ -43,7 +43,7 @@ DELETE /v1/subscriptions/:id
 
 **Events** — `POST /v1/events` (up to 100, `{ events: [...] }` or a bare object), `GET /v1/events`, `/v1/events/names`, `/v1/events/names/:name`, `/v1/events/volume`, `/v1/events/token`. `references/events.md`.
 
-**Messages** — `POST /v1/messages`, `GET /v1/messages/:id`, `POST /v1/messages/:id/cancel`, `GET /v1/messages/:id/deliveries`, `GET /v1/deliveries/:id`, `GET /v1/deliveries/:id/attempts`, `POST /v1/live-activities/send`. `references/messages.md`.
+**Messages** — `POST /v1/messages`, `GET /v1/messages/:id`, `POST /v1/messages/:id/cancel`, `GET /v1/messages/:id/deliveries`, `GET /v1/deliveries/:id`, `GET /v1/deliveries/:id/attempts`, `POST /v1/live-activities/send`, `POST /v1/widgets/reload`. `references/messages.md`.
 
 **Topics** — `POST/GET /v1/topics`, `GET/PATCH/DELETE /v1/topics/:slug`, `/v1/topic-categories`. Client side: `GET/PATCH /v1/client/preferences`. `references/topics-preferences.md`.
 
@@ -55,7 +55,7 @@ DELETE /v1/subscriptions/:id
 
 **Webhooks** (workspace-scoped) — `POST/GET /v1/workspaces/:slug/webhooks`, `GET/PATCH/DELETE …/:id`, `POST …/:id/rotate`, `GET …/:id/deliveries`, `GET …/:id/deliveries/:deliveryId`, `POST …/:id/deliveries/:deliveryId/replay`, `GET …/webhooks/catalog`, `GET …/webhooks/events/:id`. `references/sources-webhooks.md`.
 
-**Client API** (client key, `BuzzKit-Subscriber` + `BuzzKit-Identity` headers) — `POST /v1/client/identify`, `POST /v1/client/events`, `GET/PATCH /v1/client/preferences`, `POST /v1/client/subscriptions`, `PATCH/DELETE /v1/client/subscriptions/:id`. `references/browser-react.md`, `references/ios-sdk.md`.
+**Client API** (client key, `BuzzKit-Subscriber` + `BuzzKit-Identity` headers) — `POST /v1/client/identify`, `POST /v1/client/events`, `GET/PATCH /v1/client/preferences`, `POST /v1/client/subscriptions`, `PATCH/DELETE /v1/client/subscriptions/:id`, `POST /v1/client/widgets`, `DELETE /v1/client/widgets/:id`. `references/browser-react.md`, `references/ios-sdk.md`.
 
 **Tenants and workspace** — `POST/GET /v1/tenants`, `GET/PATCH/DELETE /v1/tenants/:slug`, the session-only `GET /v1/tenants/:slug/identity-secret` and `POST …/identity-secret/rotate`, `GET/PATCH /v1/workspaces/:slug`, `/v1/workspaces/:slug/members`, `/v1/workspaces/:slug/audit`, `/v1/credentials`, `/v1/stats`, `/v1/health`. `references/tenants.md`.
 

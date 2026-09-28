@@ -78,6 +78,18 @@ describe('send', () => {
     expect(second.get('apns-priority')).toBe('5');
   });
 
+  it('targets the widgets topic for widget reloads', async () => {
+    fetchMock.mockResolvedValueOnce(apnsResponse(200));
+
+    await apnsProvider.send(sendInput({ payload: { widgets: true } }));
+
+    const call = fetchMock.mock.calls[0]![1] as RequestInit;
+    const headers = new Headers((call.headers ?? {}) as Record<string, string>);
+    expect(headers.get('apns-topic')).toBe('com.example.app.push-type.widgets');
+    expect(headers.get('apns-push-type')).toBe('widgets');
+    expect(JSON.parse(call.body as string)).toEqual({ aps: { 'content-changed': true } });
+  });
+
   it('targets the live activity topic for live activity pushes', async () => {
     fetchMock.mockResolvedValueOnce(apnsResponse(200));
 

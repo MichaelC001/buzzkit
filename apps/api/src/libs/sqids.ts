@@ -34,6 +34,7 @@ export const ID_PREFIXES = {
   run: 'run',
   invite: 'inv',
   liveActivity: 'act',
+  widget: 'wgt',
   webhook: 'whk',
   webhookEvent: 'whe',
   webhookDelivery: 'whd',

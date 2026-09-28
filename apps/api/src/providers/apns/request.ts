@@ -1,5 +1,12 @@
 import type { ProviderEnvironment } from '../types';
 
+export type ApnsPushType = 'alert' | 'background' | 'liveactivity' | 'widgets';
+
+const TOPIC_SUFFIXES: Partial<Record<ApnsPushType, string>> = {
+  liveactivity: '.push-type.liveactivity',
+  widgets: '.push-type.widgets',
+};
+
 export const HOSTS: Record<ProviderEnvironment, string> = {
   production: 'https://api.push.apple.com',
   sandbox: 'https://api.sandbox.push.apple.com',
@@ -9,14 +16,13 @@ export function buildHeaders(params: {
   jwt: string;
   bundleId: string;
   priority: number;
-  pushType?: 'alert' | 'background' | 'liveactivity';
+  pushType?: ApnsPushType;
   collapseId?: string;
   expiresAt: Date | null;
 }): Record<string, string> {
   return {
     authorization: `bearer ${params.jwt}`,
-    'apns-topic':
-      params.pushType === 'liveactivity' ? `${params.bundleId}.push-type.liveactivity` : params.bundleId,
+    'apns-topic': `${params.bundleId}${(params.pushType && TOPIC_SUFFIXES[params.pushType]) ?? ''}`,
     'apns-push-type': params.pushType ?? 'alert',
     'apns-priority': String(params.priority),
     'apns-expiration': String(params.expiresAt ? Math.floor(params.expiresAt.getTime() / 1000) : 0),

@@ -292,9 +292,9 @@ converts at the boundary. Unexpected errors are rethrown and become 500s.
 Three resources must exist before the first deploy:
 
 ```
-bunx wrangler kv namespace create KEYS             # then replace REPLACE_WITH_KV_ID in wrangler.jsonc
-bunx wrangler secret put BUZZKIT_API_KEY           # a workspace or tenant key for the Buzz tenant
-bunx wrangler secret put BUZZKIT_IDENTITY_SECRET   # the tenant's identity secret (dashboard → tenant → Identity)
+bunx wrangler kv namespace create buzzkit-ping-keys  # then put its id on the KEYS binding in wrangler.jsonc
+bunx wrangler secret put BUZZKIT_API_KEY             # a workspace or tenant key for the Buzz tenant
+bunx wrangler secret put BUZZKIT_IDENTITY_SECRET     # the tenant's identity secret (dashboard → tenant → Identity)
 ```
 
 The tenant behind that key needs APNs connected, since every Buzz install is a subscriber in it.

@@ -22,8 +22,8 @@
     "PING_URL": "https://ping.buzzkit.dev"
   },
 
-  // KEYS: ping key -> device id. The key in the URL is the whole credential, so this
-  // is read on every ping; rotation writes the new entry and deletes the old one.
+  // KEYS (`buzzkit-ping-keys`): ping key -> device id. The key in the URL is the whole
+  // credential, so this is read on every ping; rotation writes the new entry and deletes the old.
   "kv_namespaces": [
     {
       "binding": "KEYS",

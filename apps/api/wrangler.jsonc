@@ -39,6 +39,10 @@
     }
   ],
 
+  // Remote resources are always named `buzzkit-<what it holds>`, never after the binding:
+  // the Hyperdrive config is `buzzkit-postgres`. A config only carries the id, so the name
+  // lives in Cloudflare; rename with `wrangler hyperdrive update <id> --name` or
+  // `wrangler kv namespace rename`, neither of which changes the id.
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
@@ -47,8 +51,11 @@
     }
   ],
 
-  // AUTH_CACHE: resolved dashboard sessions (5 min) and API keys (60s, purged on revoke).
-  // PROVIDER_CACHE: short-lived provider tokens (APNs JWT, FCM OAuth).
+  // AUTH_CACHE (`buzzkit-auth-cache`): resolved dashboard sessions (5 min) and API keys (60s,
+  // purged on revoke).
+  // PROVIDER_CACHE (`buzzkit-provider-cache`): short-lived provider tokens (APNs JWT, FCM OAuth).
+  // ENGINE_DEFS (`buzzkit-engine-definitions`): each tenant's published workflow definitions
+  // and their version, read by the subscriber actors.
   "kv_namespaces": [
     {
       "binding": "AUTH_CACHE",

@@ -128,6 +128,7 @@ export namespace BuzzKit {
   export type PreferenceChanges = R.PreferenceChanges;
   export type Provider = R.Provider;
   export type QuietHours = R.QuietHours;
+  export type ReloadWidgetsParams = R.ReloadWidgetsParams;
   export type ResendCredentialParams = R.ResendCredentialParams;
   export type Run = R.Run;
   export type RunCounts = R.RunCounts;
@@ -190,6 +191,7 @@ export namespace BuzzKit {
   export type WebhookEndpoint = R.WebhookEndpoint;
   export type WebhookEndpointWithSecret = R.WebhookEndpointWithSecret;
   export type WebhookEvent = R.WebhookEvent;
+  export type WidgetReloadResult = R.WidgetReloadResult;
   export type Workflow = R.Workflow;
   export type WorkflowSchedule = R.WorkflowSchedule;
   export type WorkflowScheduleFire = R.WorkflowScheduleFire;

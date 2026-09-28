@@ -1,6 +1,6 @@
 ---
 name: buzzkit
-description: Integrate BuzzKit, the open source notification orchestration layer, into an app and its backend. Use when a user wants push notifications in an iOS app, wants to send push from a server, or asks for subscribers, topics and preferences, segments, scheduled sends, events, workflows, Live Activities, inbound webhook sources or outbound webhooks. Covers the TypeScript SDK, the REST API, the iOS SDK and the dashboard, with the practices that make an integration hold up.
+description: Integrate BuzzKit, the open source notification orchestration layer, into an app and its backend. Use when a user wants push notifications in an iOS app, wants to send push from a server, or asks for subscribers, topics and preferences, segments, scheduled sends, events, workflows, Live Activities, widget reloads, inbound webhook sources or outbound webhooks. Covers the TypeScript SDK, the REST API, the iOS SDK and the dashboard, with the practices that make an integration hold up.
 ---
 
 # BuzzKit
@@ -29,7 +29,7 @@ Read the file for the part you are working on before writing code. Each is exact
 | `references/best-practices.md` | **Always, before the first line of code.** Identity, attributes, events, topics, idempotency, verification, secrets: the decisions that make everything later possible. |
 | `references/server-sdk.md` | Any backend in TypeScript or JavaScript: the `buzzkit` package, every resource and method, pagination, errors, retries, identity signing, webhook verification. |
 | `references/rest-api.md` | Any backend in another language, or when you need the exact HTTP shape: auth, the envelope, every endpoint by resource, error codes. |
-| `references/ios-sdk.md` | The iOS app: install, configure, push registration, identity, events, deep links and actions, the service extension, the preferences screen, Live Activities, local notifications. |
+| `references/ios-sdk.md` | The iOS app: install, configure, push registration, identity, events, deep links and actions, the service extension, the preferences screen, Live Activities, widgets, local notifications. |
 | `references/browser-react.md` | A web app or React front end: `buzzkit/client` and `buzzkit/react`. |
 | `references/messages.md` | Sending: targeting, every content field, scheduling, idempotency, expiry, delivery and how to debug a send. |
 | `references/topics-preferences.md` | Notification categories and the settings screen. Read this whenever the app has any notification preference. |

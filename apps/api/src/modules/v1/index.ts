@@ -6,6 +6,7 @@ import { clientIdentify } from './client/identify';
 import { clientLiveActivities } from './client/live-activities';
 import { clientPreferences } from './client/preferences';
 import { clientSubscriptions } from './client/subscriptions';
+import { clientWidgets } from './client/widgets';
 import { credentials } from './credentials';
 import { credential } from './credentials/[id]';
 import { credentialValidate } from './credentials/[id]/validate';
@@ -57,6 +58,7 @@ import { tenantIdentitySecretRotate } from './tenants/[tenantSlug]/identity-secr
 import { topicCategories } from './topic-categories';
 import { topics } from './topics';
 import { topic } from './topics/[topicSlug]';
+import { widgetsReload } from './widgets/reload';
 import { workflows } from './workflows';
 import { workflow } from './workflows/[workflowSlug]';
 import { workflowPause } from './workflows/[workflowSlug]/pause';
@@ -84,8 +86,7 @@ import { webhookRotate } from './workspaces/[workspaceSlug]/webhooks/[id]/rotate
 import { webhookCatalog } from './workspaces/[workspaceSlug]/webhooks/catalog';
 import { webhookEvent } from './workspaces/[workspaceSlug]/webhooks/events/[id]';
 
-export const v1 = new Elysia({ prefix: '/v1' })
-  .use(response)
+const account = new Elysia()
   /* /v1/health */
   .use(health)
   /* /v1/admin/* */
@@ -141,7 +142,9 @@ export const v1 = new Elysia({ prefix: '/v1' })
   /* /v1/tenants/:tenantSlug/identity-secret */
   .use(tenantIdentitySecret)
   /* /v1/tenants/:tenantSlug/identity-secret/rotate */
-  .use(tenantIdentitySecretRotate)
+  .use(tenantIdentitySecretRotate);
+
+const audience = new Elysia()
   /* /v1/credentials */
   .use(credentials)
   /* /v1/credentials/:id */
@@ -197,7 +200,9 @@ export const v1 = new Elysia({ prefix: '/v1' })
   /* /v1/segments/:segmentSlug */
   .use(segment)
   /* /v1/segments/:segmentSlug/members */
-  .use(segmentMembers)
+  .use(segmentMembers);
+
+const messaging = new Elysia()
   /* /v1/workflows */
   .use(workflows)
   /* /v1/workflows/:workflowSlug */
@@ -239,7 +244,9 @@ export const v1 = new Elysia({ prefix: '/v1' })
   /* /v1/deliveries/:id */
   .use(delivery)
   /* /v1/deliveries/:id/attempts */
-  .use(deliveryAttempts)
+  .use(deliveryAttempts);
+
+const client = new Elysia()
   /* /v1/client/identify */
   .use(clientIdentify)
   /* /v1/client/subscriptions */
@@ -251,4 +258,15 @@ export const v1 = new Elysia({ prefix: '/v1' })
   /* /v1/client/live-activities */
   .use(clientLiveActivities)
   /* /v1/live-activities/send */
-  .use(liveActivities);
+  .use(liveActivities)
+  /* /v1/client/widgets */
+  .use(clientWidgets)
+  /* /v1/widgets/reload */
+  .use(widgetsReload);
+
+export const v1 = new Elysia({ prefix: '/v1' })
+  .use(response)
+  .use(account)
+  .use(audience)
+  .use(messaging)
+  .use(client);

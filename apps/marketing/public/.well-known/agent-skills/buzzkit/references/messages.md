@@ -101,6 +101,10 @@ Debug a send in this order: the message's `counts` for the shape of the failure,
 
 `POST /v1/live-activities/send` (scope `messages:send`): `to`, `event` (`start` | `update` | `end`), `activityId` (update/end) or `attributesType` (start), `contentState` (required), `attributes` (start), `alert { title, body, sound }` (required for start, else `alert_missing`), `staleDate`, `dismissalDate`, `priority`, `timestamp` (epoch seconds; iOS ignores updates older than one applied). The reply is `{ results: [{ id, ok, code?, reason? }] }`, one per registered token. In the SDK: `buzzkit.liveActivities.send(params)`.
 
+## Widget reloads
+
+`POST /v1/widgets/reload` (scope `messages:send`): `{ to }`, one external id or an array of 1 to 100. It sends a WidgetKit push (`apns-push-type: widgets`, body `{"aps":{"content-changed":true}}`) to every widget token registered for those subscribers, synchronously and without a message or deliveries. The push carries no data: it triggers the widget's timeline reload, and iOS budgets it like timeline reloads, so it is opportunistic. The reply is `{ results: [{ id: "wgt_…", ok, code?, reason? }] }`, one per registered widget token; unknown subscribers are skipped, `no_credential` means the token's environment has no APNs credential, and an `invalid_endpoint` result removes that registration. Tokens are registered from the widget extension (`references/ios-sdk.md`). In the SDK: `buzzkit.widgets.reload({ to })`.
+
 ## Errors specific to sending
 
 `targets_conflict`, `payload_missing`, `invalid_expression`, `channel_not_offered`, `channel_disabled`, `channel_not_connected` (no credential; refused before anything is queued), `channel_unsupported`, `schedule_in_past`, `invalid_schedule`, `idempotency_key_reused`, `message_not_cancelable`, `alert_missing`.

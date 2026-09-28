@@ -1,0 +1,117 @@
+---
+title: "Widgets"
+description: "Reload your app's widgets from your backend with a WidgetKit push, with the SDK keeping the widget push token registered."
+---
+
+A widget push tells iOS that a widget's content changed, and iOS reloads its timeline. BuzzKit keeps the WidgetKit push token registered from your widget extension, and your backend reloads a subscriber's widgets with one call.
+
+The push carries no data. It triggers a timeline reload, and your timeline provider fetches what the widget shows, exactly as it does for any other reload. iOS budgets these pushes the way it budgets timeline reloads, so a reload is opportunistic: use it when something changed, not for anything time-critical.
+
+Widget pushes are available on iOS 26 and later.
+
+## Set up the targets
+
+The widget extension registers the token on its own, so it needs to know the API key and the subscriber. It reads both from the app group the app configured BuzzKit with.
+
+1. Add an app group to both the app and the widget extension in Xcode's Signing & Capabilities, and pass it as `appGroup` when you configure BuzzKit in the app.
+2. Add the Push Notifications capability to the widget extension target, so it carries the `aps-environment` entitlement.
+
+```swift
+BuzzKit.configure(with: BuzzKit.Configuration(
+    apiKey: "bk_pk_…",
+    appGroup: "group.com.example.app"
+))
+```
+
+No new credential is needed. Widget pushes go out on the workspace's existing APNs credential, and the key must be allowed to send to the app's topics, which a team-scoped key is.
+
+## Keep the token registered
+
+Give your widget configuration a push handler that forwards WidgetKit's token to BuzzKit.
+
+```swift
+import BuzzKit
+import WidgetKit
+
+struct StatsPushHandler: WidgetPushHandler {
+    func pushTokenDidChange(_ pushInfo: WidgetPushInfo, widgets: [WidgetInfo]) {
+        Task { await BuzzKit.widgets(appGroup: "group.com.example.app").pushTokenDidChange(pushInfo, widgets: widgets) }
+    }
+}
+```
+
+```swift
+StaticConfiguration(kind: "Stats", provider: StatsProvider()) { entry in
+    StatsWidgetView(entry: entry)
+}
+.pushHandler(StatsPushHandler.self)
+```
+
+`BuzzKit.widgets(appGroup:)` works inside the extension, where `configure` never runs. `pushTokenDidChange(_:widgets:)` registers the token against the current subscriber while any of your widgets is installed, and unregisters it when the last one is removed.
+
+WidgetKit issues one push token per device for all of your app's widgets, so BuzzKit keeps one registration per device, not one per widget. A reload reaches every widget of the app on that device.
+
+## Re-register from the app
+
+The extension registers the token against the subscriber the app last stored in the app group: the identified user, or the anonymous id before [identify](/sdks/ios/identity). WidgetKit only calls the handler when the token or the installed widgets change, so after `identify` have the app re-register the current token. It moves to the identified subscriber.
+
+```swift
+BuzzKit.identify("user_42")
+try await BuzzKit.widgets.synchronize()
+```
+
+`BuzzKit.widgets` is the app's instance. `synchronize()` registers `WidgetCenter.shared.currentPushInfo`, and does nothing when there is none. The low-level surface stays available when you want to do the plumbing yourself: `register(token:)` and `unregister()`, both `async throws`, on either instance. The token's APNs environment is detected from the build.
+
+## Reload from your backend
+
+`POST /v1/widgets/reload` takes one subscriber or up to 100, and pushes to every widget token registered for them. It needs the `messages:send` scope.
+
+<CodeGroup>
+
+```bash cURL
+curl https://api.buzzkit.dev/v1/widgets/reload \
+  -X POST \
+  -H "Authorization: Bearer bk_ws_..." \
+  -H "Content-Type: application/json" \
+  -d '{ "to": ["user_1", "user_2"] }'
+```
+
+```ts Node
+await buzzkit.widgets.reload({ to: ['user_1', 'user_2'] });
+```
+
+</CodeGroup>
+
+| Field | What it does |
+| --- | --- |
+| `to` | The subscriber's id in your system, or an array of 1 to 100 ids. |
+
+The call is synchronous and creates no message. The response carries one result per registered widget token with the APNs outcome.
+
+```json
+{
+  "results": [
+    { "id": "wgt_…", "ok": true },
+    { "id": "wgt_…", "ok": false, "code": "no_credential", "reason": "No sandbox APNs credential configured" }
+  ]
+}
+```
+
+An unknown subscriber is skipped, so a subscriber without widgets yields no results. `no_credential` means the token's environment has no APNs credential. A token APNs rejects as invalid comes back as `invalid_endpoint` and its registration is removed, so the next reload skips it.
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Live Activities" icon="clock" href="/sdks/ios/live-activities">
+    Start, update and end a Live Activity from your backend.
+  </Card>
+  <Card title="Push" icon="bell" href="/sdks/ios/push">
+    Permission, device tokens and environments.
+  </Card>
+  <Card title="Identity" icon="user" href="/sdks/ios/identity">
+    Identifying the subscriber tokens are registered against.
+  </Card>
+  <Card title="Sending messages" icon="paper-plane" href="/sending/messages">
+    Ordinary sends, targeting and content.
+  </Card>
+</CardGroup>

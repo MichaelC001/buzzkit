@@ -3,7 +3,7 @@ title: "iOS SDK"
 description: "Install the BuzzKit Swift package, configure it at launch, and understand every option on BuzzKit.Configuration."
 ---
 
-The iOS SDK is everything a native app needs to take part in BuzzKit without writing backend code: it identifies the user, registers the device for push, tracks events durably on disk, renders the notification settings screen, routes deep links and remote actions, keeps Live Activity tokens registered, and schedules workflow-driven local notifications. Messages, segments, workflows and topics stay in the dashboard. The SDK keeps the device, the user and their preferences in sync with them.
+The iOS SDK is everything a native app needs to take part in BuzzKit without writing backend code: it identifies the user, registers the device for push, tracks events durably on disk, renders the notification settings screen, routes deep links and remote actions, keeps Live Activity and widget push tokens registered, and schedules workflow-driven local notifications. Messages, segments, workflows and topics stay in the dashboard. The SDK keeps the device, the user and their preferences in sync with them.
 
 ```swift
 import BuzzKit
@@ -28,7 +28,7 @@ The package vends three products. Link each to the target that needs it.
 
 | Product | Add to | What it does |
 | --- | --- | --- |
-| `BuzzKit` | The app target | Identity, events, push, preferences, deep links, Live Activities |
+| `BuzzKit` | The app target | Identity, events, push, preferences, deep links, Live Activities, widget push tokens |
 | `BuzzKitUI` | The app target | `BuzzKitPreferencesView`, the drop-in notification settings screen |
 | `BuzzKitNotificationServiceExtension` | A notification service extension target | Rich media attachments, action buttons and delivered receipts |
 
@@ -127,6 +127,7 @@ A Swift package cannot add capabilities or Info.plist keys to your app, so set t
 | An app group on both the app and the extension | Delivered receipts that survive the extension |
 | A Notification Service Extension target | Rich media, action buttons and delivered receipts |
 | `NSSupportsLiveActivities` in Info.plist | Live Activities |
+| Push Notifications capability and the app group on the widget extension | Widget reloads |
 
 ## Next
 
@@ -148,5 +149,8 @@ A Swift package cannot add capabilities or Info.plist keys to your app, so set t
   </Card>
   <Card title="Live Activities" icon="clock" href="/sdks/ios/live-activities">
     Token plumbing for activities started and updated from the server.
+  </Card>
+  <Card title="Widgets" icon="grid-2" href="/sdks/ios/widgets">
+    Reload your widgets from the server with a WidgetKit push.
   </Card>
 </CardGroup>

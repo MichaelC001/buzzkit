@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
+import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { type ConnectionRetryOptions, withConnectionRetry } from './retry';
 import { authTables } from './schema/auth';
@@ -15,6 +15,7 @@ import { subscriberTables } from './schema/subscriber';
 import { tenantTables } from './schema/tenant';
 import { topicTables } from './schema/topic';
 import { webhookTables } from './schema/webhook';
+import { widgetTables } from './schema/widget';
 import { workflowTables } from './schema/workflow';
 import { workspaceTables } from './schema/workspace';
 
@@ -29,6 +30,7 @@ export const tables = {
   ...secretTables,
   ...sourceTables,
   ...liveActivityTables,
+  ...widgetTables,
   ...subscriberTables,
   ...topicTables,
   ...messageTables,
@@ -39,7 +41,15 @@ export const tables = {
 
 export type DrizzleOptions = { max?: number; retry?: ConnectionRetryOptions | false };
 
-export const createDrizzle = (url: string, options: DrizzleOptions = {}) => {
+export type Tables = typeof tables;
+
+export interface Db extends PostgresJsDatabase<Tables> {}
+
+type Transaction = Parameters<Parameters<Db['transaction']>[0]>[0];
+
+export interface Tx extends Transaction {}
+
+export const createDrizzle = (url: string, options: DrizzleOptions = {}): Db => {
   const client = postgres(url, {
     max: options.max ?? 5,
     connect_timeout: 10,
@@ -53,9 +63,6 @@ export const createDrizzle = (url: string, options: DrizzleOptions = {}) => {
 
   return drizzle(retrying, { schema: tables });
 };
-
-export type Db = ReturnType<typeof createDrizzle>;
-export type Tx = Parameters<Parameters<Db['transaction']>[0]>[0];
 
 export * from 'drizzle-orm';
 export { drizzle } from 'drizzle-orm/postgres-js';

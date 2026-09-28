@@ -64,6 +64,7 @@ import type {
   serializeWebhookDelivery,
   serializeWebhookEvent,
 } from '@buzzkit/api/api/webhooks/index';
+import type { ReloadWidgetsSchema } from '@buzzkit/api/api/widgets/index';
 import type {
   CreateWorkflowSchema,
   serializeVersion,
@@ -108,6 +109,7 @@ type ImportRequest = Expect<Matches<{ rows: BuzzKit.ImportRow[] }, typeof Import
 type LiveActivityRequest = Expect<
   Matches<BuzzKit.SendLiveActivityParams, typeof SendLiveActivitySchema.static>
 >;
+type ReloadWidgetsRequest = Expect<Matches<BuzzKit.ReloadWidgetsParams, typeof ReloadWidgetsSchema.static>>;
 type TrackEventRequest = Expect<Matches<BuzzKit.EventInput, typeof TrackEventSchema.static>>;
 type CredentialRequest = Expect<
   Matches<BuzzKit.CreateCredentialParams, typeof CredentialUploadSchema.static>
@@ -207,6 +209,7 @@ export type ContractParity = [
   UpdateWorkflowRequest,
   ImportRequest,
   LiveActivityRequest,
+  ReloadWidgetsRequest,
   TrackEventRequest,
   CredentialRequest,
   SubscriptionRequest,
